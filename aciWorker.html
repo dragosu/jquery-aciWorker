@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="robots" content="index, follow">
+        <title>aciWorker demo - Abstract web workers with jQuery</title>
+        <meta name="description" content="A demo to show you how aciWorker can be used, check the plugin page to see all the functions exposed by the API">
+        <meta name="keywords" content="aciWorker, web, worker, abstract, setTimeout, thread, jQuery">        
+        <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery-ui-1.10.3.custom.min.js"></script>
+        <script type="text/javascript" src="js/jquery.aciPlugin.min.js"></script>
+        <script type="text/javascript" src="js/jquery.aciWorker.js"></script>
+        <link href="css/demo.css" type="text/css" rel="stylesheet" media="all">
+        <link href="css/ui-lightness/jquery-ui-1.10.3.custom.css" type="text/css" rel="stylesheet" media="all">
+    </head>
+    <body>
+
+        <p>Note: `Test suite` make use of the two sample scripts `import1.js` and `import2.js` to access variables, functions and objects.<br> You must understand 
+            the web workers limitations/requirements when writing code to be run inside them and you must know - if the web workers are not available - the
+            script files will be loaded inside current page and the execution context will be the current window object.<br>
+            `Process a long task` will hang your browser when used without web workers support (depending on your hardware)!<br>
+            `Find prime` will execute a small piece of code for each number (as a separate task), this way - even if there is no web workers support - there will be
+            some free resources left for others to consume (done using `setTimeout`).</p>
+
+        <input class="test" type="button" value="Test suite ...">
+
+        <input class="long" type="button" value="Process a long task ...">
+
+        <input class="prime" type="button" value="Find prime ...">
+
+        <label><input id="noworkers" type="checkbox" value="1"> Do not use web workers</label>
+
+        <p>The progress bar should update even when web workers are not available (if the code was split in small tasks that can be run within `setTimeout`):<br>
+            <span class="prog" style="display:inline-block;width:300px;height:15px;"></span>
+        </p>
+        
+        <p>Check the console for errors thrown from the web workers (when running `Test suite`).</p>
+
+        <div class="log"></div>
+
+        <script class="code" type="text/javascript">
+
+            $('#noworkers').prop('checked', false);
+
+            $('.prog').progressbar({
+                value: false
+            });
+
+            var prog = 0;
+
+            // update the progress bar
+            setInterval(function() {
+                $('.prog').progressbar('option', 'value', prog);
+                prog++;
+                if (prog > 100) {
+                    prog = 0;
+                }
+            }, 200);
+
+            // append some text to the log
+            function log(message, noend) {
+                $('.log').append(message + (noend ? '' : '<br>'));
+            }
+
+            // init one aciWorker instance
+            var api = $(document).aciWorker({
+                worker: true
+            }).aciWorker('api');
+            
+            // enable/disable web workers
+            $('#noworkers').click(function() {
+                var worker = !$(this).is(':checked');
+                api.option('worker', worker);
+                if (!worker) {
+                    // import them into current document
+                    api.load({
+                        file: ['js/import1.js', 'js/import2.js']
+                    });
+                }
+            });
+
+            // used as task callback
+            function response(data) {
+                log('');
+                for (var i in data) {
+                    log(i + ': ' + data[i]);
+                }
+            }
+
+            // run test suite
+            // using the code from `import1.js` and `import2.js`
+            
+            function runTests() {
+
+                // using `execute` ...
+
+                api.execute('get', {
+                    name: 'object1.value'
+                },
+                response);
+                
+                // or calling the methods ...
+
+                api.set({
+                    name: 'object1_instance1.value',
+                    data: 'valued'
+                },
+                response);
+
+                api.get({
+                    name: 'object1_instance1.value'
+                },
+                response);
+
+                api.set({
+                    name: 'custom1',
+                    data: 'valued'
+                },
+                response);
+
+                api.get({
+                    name: 'custom1'
+                },
+                response);
+
+                api.set({
+                    name: 'custom1',
+                    data: {
+                        color: 'red'
+                    }
+                },
+                response);
+
+                api.get({
+                    name: 'custom1.color'
+                },
+                response);
+
+                api.set({
+                    name: 'custom1.color',
+                    data: 'blue'
+                },
+                response);
+
+                api.get({
+                    name: 'custom1.color'
+                },
+                response);
+
+                api.set({
+                    name: 'custom1.font',
+                    data: 'Arial'
+                },
+                response);
+
+                api.get({
+                    name: 'custom1.font'
+                },
+                response);
+
+                api.toString({
+                    name: 'function1'
+                },
+                response);
+
+                api.call({
+                    name: 'function1',
+                    data: [7, 3]
+                },
+                response);
+
+                api.call({
+                    name: 'object1_instance1.run',
+                    data: [7, 3]
+                },
+                response);
+                
+                api.call({
+                    note: 'exception because the function is undefined',
+                    name: 'object1_instance1.run_undefined',
+                    data: [7, 3]
+                },
+                response);                
+
+                api.get({
+                    name: 'object1_instance1.prop'
+                },
+                response);
+
+                api.set({
+                    name: 'object1_instance1.prop',
+                    data: 'changed'
+                },
+                response);
+
+                api.get({
+                    name: 'object1_instance1.prop'
+                },
+                response);
+
+                api.toString({
+                    name: 'object1_instance1.run'
+                },
+                response);
+
+                api.construct({
+                    name: 'object1_instance3',
+                    type: 'object1',
+                    data: 56
+                },
+                response);
+                
+                api.construct({
+                    note: 'exception because the type is undefined',
+                    name: 'object1_instance3_not',
+                    type: 'object1_not',
+                    data: 78
+                },
+                response);                
+
+                api.get({
+                    name: 'object1_instance3.prop'
+                },
+                response);
+
+                api.destruct({
+                    name: 'object1_instance3'
+                },
+                response)
+                
+                // exception on undefined object
+
+                api.get({
+                    note: 'exception because was `destruct`',
+                    name: 'object1_instance3.prop'
+                },
+                response);
+
+                // exception on unknown task
+                
+                api.execute('undefined', {
+                    note: 'exception because unknown task',
+                    name: 'random'
+                },
+                response);                
+
+                // we can also chain them together
+
+                api.get({
+                    name: 'object2_instance2.value'
+                },
+                response).set({
+                    name: 'object2_instance2.value',
+                    data: 'a new value'
+                },
+                response).get({
+                    name: 'object2_instance2.value'
+                },
+                response).isset({
+                    name: 'object2_instance2.value'
+                }, response).isset({
+                    name: 'object2_instance2.notsetyet'
+                }, response).ifset({
+                    name: 'object2_instance2.notsetyet',
+                    data: 'a value'
+                }, response).isset({
+                    name: 'object2_instance2.notsetyet'
+                }, response).ifset({
+                note: 'does not change value cause was set',
+                    name: 'object2_instance2.value',
+                    data: 'a new value to set'
+                }, response).get({
+                    name: 'object2_instance2.value'
+                }, response);
+                
+            }
+
+            // import our worker scripts (files relative to the `aciWorker.js` script)
+
+            api.load({
+                file: ['js/import1.js', 'js/import2.js']
+            }, function() {
+
+                // ensure we import the scripts before the user can click ...
+
+                $('.test').click(function() {
+                    runTests();
+                });
+
+                $('.long').click(function() {
+                    api.call({
+                        name: 'process_long_stuff' // find this in `import1.js`
+                    },
+                    response);
+                });
+
+                $('.prime').click(function() {
+                    var i = 1;
+                    log('<br>search for prime numbers (break on a prime > 40k) ...');
+                    var process = function() {
+                        api.call({
+                            name: 'isPrime', // find this in `import1.js`
+                            data: ++i
+                        },
+                        function(data) {
+                            if (data.result) {
+                                log(i + ' ', true);
+                                if (i > 40000) {
+                                    return;
+                                }
+                            }
+                            // for the next prime
+                            process();
+                        });
+                    };
+                    // start it
+                    process();
+                });
+
+            });
+
+        </script>
+
+        <script type="text/javascript">
+
+            $(function() {
+
+                $('script.code').each(function() {
+                    $(this).before('<div style="clear:both"><pre style="line-height:150%;padding:20px;border:1px dashed #000;background:#f6f6f6;display:inline-block;"></pre></div>');
+                    $(this).prev('div').find('pre').text($(this).html());
+                });
+
+            });
+
+        </script>        
+
+    </body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="language" content="en">
+        <title>aciWorker v1.0.0 - Abstract web workers with jQuery</title>
+        <meta name="description" content="aciWorker API documentation">
+        <style type="text/css">
+            html {
+                height: 100%;
+            }
+            html * {
+                margin:0;
+                padding:0;
+            }
+            body {
+                color:#036;
+                font-family:Verdana, Geneva, sans-serif;
+                font-size:14px;
+                max-width:900px;
+                height: 100%;
+                background-color:#eee;
+                margin:20px auto 20px auto;
+            }
+            a, a:visited {
+                color:#333;
+            }
+            a:hover {
+                text-decoration:none;
+            }
+            .body {
+                width:100%;
+                min-height:100%;
+            }
+            ul {
+                list-style:outside;
+                list-style-type:circle;
+                margin:20px 0 20px 18px;
+            }
+            li {
+                margin:4px 0 4px 0;
+            }
+            h1, h2, h3 {
+                color:#930;
+                margin:30px 0 20px 0;
+            }
+            h1 {
+                font-size:1.2em;
+            }
+            h2 {
+                font-size:1.1em;
+            }
+            h3 {
+                font-size:1em;
+            }
+            p {
+                margin-top:10px;
+                margin-bottom:10px;
+            }
+            .api-extensions label {
+                display:inline-block;
+                width:270px;
+                padding-right: 10px;
+                height:25px;
+                font-weight:bold;
+                cursor:pointer;
+            }
+            .api-events label {
+                display:inline-block;
+                width:140px;
+                padding-right: 10px;
+                height:25px;
+                font-weight:bold;
+                color:#993300;
+            }
+            .api {
+                padding:10px 0 10px 0;
+            }
+            .api>div {
+                margin:10px 0 10px 0;
+                opacity:0.9;
+            }
+            .api>div:hover {
+                opacity:1;
+            }
+            .api>div em {
+                color:#993300;
+                font-weight:bold;
+            }
+            .api div span {
+                display:block;
+                font-weight:bold;
+                margin:10px 0 10px 0;
+            }
+            .api div>span:first-child {
+                background-color:#003366;
+                color:#fff;
+                line-height:30px;
+                padding-left:10px;
+            }
+            .api div>span:first-child>span {
+                padding-left:10px;
+                font-style:italic;
+                font-size:0.9em;
+                color:#ccc;
+            }
+            .api div>span:first-child a {
+                float:right;
+                color:#fff;
+                font-weight:bold;
+                text-decoration:none;
+                padding-right:10px;
+                font-size:12px;
+            }
+            .api div span>span {
+                font-weight:normal;
+                display:inline;
+            }
+            .api div span.where>span {
+                display:block;
+                font-weight:bold;
+            }
+            .api div span.where {
+                display:block;
+                font-weight:normal !important;
+                padding-left:40px;
+            }
+            .api div>span.where {
+                display:block;
+            }
+            .api div ul {
+                list-style:none;
+                margin:0;
+                display:inline;
+            }
+            .api div ul>li {
+                padding-left:40px;
+            }
+            .api div ul>li:first-child {
+                display:inline;
+                padding-left:0;
+            }
+            .api div ul>li:last-child {
+                padding-left:0;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>aciWorker API v1.0.0</h1>
+
+<div class="api"><span class="toc"><a title=".call (data, callback)" href="#.call">.call -  Call a function or method.
+            
+            data.name can contain one...</a><br><a title=".construct (data, callback)" href="#.construct">.construct -  Create object instance.
+            
+            data.name can contain one or...</a><br><a title=".destroy ()" href="#.destroy">.destroy -  Destroys the aciWorker instance.
+        </a><br><a title=".destruct (data, callback)" href="#.destruct">.destruct -  Destroys object instance.
+            
+            data.name can contain one...</a><br><a title=".execute (task, data, callback)" href="#.execute">.execute -  Calls one of the API methods, where task is the method name...</a><br><a title=".get (data, callback)" href="#.get">.get -  Return the value of a variable.
+            
+            data.name can contain...</a><br><a title=".ifset (data, callback)" href="#.ifset">.ifset -  Set the value of a variable only when the variable was not defined...</a><br><a title=".init ()" href="#.init">.init -  Init the aciWorker plugin.
+        </a><br><a title=".isset (data, callback)" href="#.isset">.isset -  Test if a variable was defined or not.
+            
+            data.name can...</a><br><a title=".load (data, callback)" href="#.load">.load -  Import one or more script files.
+            
+            The imported script...</a><br><a title=".set (data, callback)" href="#.set">.set -  Set the value of a variable.
+            
+            data.name can contain...</a><br><a title=".toString (data, callback)" href="#.toString">.toString -  Return the value of a variable, function or method by using the native method...</a><br><a title=".wasInit ()" href="#.wasInit">.wasInit -  Returns TRUE if the plugin has been initialized.
+        </a><br></span>
+
+        <a name=".call"></a><div><span>.call (data, callback)</span> Call a function or method.
+            <span class="where">
+                where:                      
+                <span>data<span> <ul><li>object {</li><li>                        name: (string) the function or method name,</li><li>                        data: (mixed) the parameter value(s) (if any)</li><li>                        }</li></ul></span></span>
+                <span>callback<span> function (data) </span></span> a callback function called at the end of the operation with the <i>data</i> parameter
+                equal with the initial one plus a few more added properties, where <i>data.result</i> is the result of the called function or method.
+            </span>
+            <i>data.name</i> can contain one or more [.] (point) characters to access namespaced elements, <i>data.data</i> can be an <i>array</i>
+            if there are more parameters than one (or an <i>array</i> with a single element - when there is a single parameter but the value itself is an <i>array</i>).
+        </div>
+
+        <a name=".construct"></a><div><span>.construct (data, callback)</span> Create object instance.
+            <span class="where">
+                where:                      
+                <span>data<span> <ul><li>object {</li><li>                        name: (string) name of the variable,</li><li>                        type: (string) the object type,</li><li>                        data: (mixed) the parameter value(s) (if any)</li><li>                        }</li></ul></span></span>
+                <span>callback<span> function (data) </span></span> a callback function called at the end of the operation with the <i>data</i> parameter
+                equal with the initial one plus a few more added properties.
+            </span>
+            <i>data.name</i> can contain one or more [.] (point) characters to access namespaced elements, <i>data.data</i> can be an <i>array</i>
+            if there are more parameters than one (or an <i>array</i> with a single element - when there is a single parameter but the value itself is an <i>array</i>).
+            The maximum number of parameters is hard coded to #4 (but can be changed in code if more are required).
+        </div>                
+
+        <a name=".destroy"></a><div><span>.destroy ()</span> Destroys the aciWorker instance.
+        </div>             
+
+        <a name=".destruct"></a><div><span>.destruct (data, callback)</span> Destroys object instance.
+            <span class="where">
+                where:                      
+                <span>data<span> <ul><li>object {</li><li>                        name: (string) name of the variable</li><li>                        }</li></ul></span></span>
+                <span>callback<span> function (data) </span></span> a callback function called at the end of the operation with the <i>data</i> parameter
+                equal with the initial one plus a few more added properties.
+            </span>
+            <i>data.name</i> can contain one or more [.] (point) characters to access namespaced elements.
+        </div> 
+
+        <a name=".execute"></a><div><span>.execute (task, data, callback)</span> Calls one of the API methods, where <b>task</b> is the method name.
+            <span class="where">
+                where:                      
+                <span>task<span> (string) </span></span> the API method name                       
+                <span>data<span> (object) </span></span> depending of the method
+                <span>callback<span> function (data) </span></span> a callback function called at the end of the operation with the <i>data</i> parameter
+                equal with the initial one plus a few more added properties.
+            </span>
+        </div>                
+
+        <a name=".get"></a><div><span>.get (data, callback)</span> Return the value of a variable.
+            <span class="where">
+                where:                      
+                <span>data<span> <ul><li>object {</li><li>                        name: (string) name of the variable</li><li>                        }</li></ul></span></span>
+                <span>callback<span> function (data) </span></span> a callback function called at the end of the operation with the <i>data</i> parameter
+                equal with the initial one plus a few more added properties, where <i>data.result</i> is the value of the variable.
+            </span>
+            <i>data.name</i> can contain one or more [.] (point) characters to access namespaced elements.
+        </div>                
+
+        <a name=".ifset"></a><div><span>.ifset (data, callback)</span> Set the value of a variable only when the variable was not defined.
+            <span class="where">
+                where:                      
+                <span>data<span> <ul><li>object {</li><li>                        name: (string) name of the variable,</li><li>                        data: (mixed) the value to be set</li><li>                        }</li></ul></span></span>
+                <span>callback<span> function (data) </span></span> a callback function called at the end of the operation with the <i>data</i> parameter
+                equal with the initial one plus a few more added properties.
+            </span>
+            <i>data.name</i> can contain one or more [.] (point) characters to access namespaced elements.
+        </div>            
+        
+        <a name=".init"></a><div><span>.init ()</span> Init the aciWorker plugin.
+        </div>                            
+
+        <a name=".isset"></a><div><span>.isset (data, callback)</span> Test if a variable was defined or not.
+            <span class="where">
+                where:                      
+                <span>data<span> <ul><li>object {</li><li>                        name: (string) name of the variable</li><li>                        }</li></ul></span></span>
+                <span>callback<span> function (data) </span></span> a callback function called at the end of the operation with the <i>data</i> parameter
+                equal with the initial one plus a few more added properties, where <i>data.result</i> is the variable state.
+            </span>
+            <i>data.name</i> can contain one or more [.] (point) characters to access namespaced elements.
+        </div>         
+        
+        <a name=".load"></a><div><span>.load (data, callback)</span> Import one or more script files.
+            <span class="where">
+                where:                      
+                <span>data<span> <ul><li>object {</li><li>                        file: (string/array) file name(s)</li><li>                        }</li></ul></span></span>
+                <span>callback<span> function (data) </span></span> a callback function called at the end of the operation with the <i>data</i> parameter
+                equal with the initial one plus a few more added properties.
+            </span>
+            The imported script files need to be accesible by the web worker (the `aciWorker.js` script).
+        </div>                     
+
+        <a name=".set"></a><div><span>.set (data, callback)</span> Set the value of a variable.
+            <span class="where">
+                where:                      
+                <span>data<span> <ul><li>object {</li><li>                        name: (string) name of the variable,</li><li>                        data: (mixed) the value to be set</li><li>                        }</li></ul></span></span>
+                <span>callback<span> function (data) </span></span> a callback function called at the end of the operation with the <i>data</i> parameter
+                equal with the initial one plus a few more added properties.
+            </span>
+            <i>data.name</i> can contain one or more [.] (point) characters to access namespaced elements.
+        </div>                   
+
+        <a name=".toString"></a><div><span>.toString (data, callback)</span> Return the value of a variable, function or method by using the native method <b>toString</b>.
+            <span class="where">
+                where:                      
+                <span>data<span> <ul><li>object {</li><li>                        name: (string) the object name</li><li>                        }</li></ul></span></span>
+                <span>callback<span> function (data) </span></span> a callback function called at the end of the operation with the <i>data</i> parameter
+                equal with the initial one plus a few more added properties, where <i>data.result</i> is the value returned by <b>toString</b>.
+            </span>
+            <i>data.name</i> can contain one or more [.] (point) characters to access namespaced elements.
+        </div>                   
+
+        <a name=".wasInit"></a><div><span>.wasInit ()</span> Returns <i>TRUE</i> if the plugin has been initialized.
+        </div>
+
+    </div>
+
+        <p>aciWorker jQuery Plugin v1.0.0</p>
+        <p>http://acoderinsights.ro</p>
+
+        <p>Copyright (c) 2013 Dragos Ursu</p>
+        <p>Dual licensed under the MIT or GPL Version 2 licenses.</p>
+
+        <p>Require jQuery Library >= v1.6.0 http://jquery.com</p>
+        <p>+ aciPlugin >= v1.4.0 https://github.com/dragosu/jquery-aciPlugin</p>
+
+    </body>
+</html>

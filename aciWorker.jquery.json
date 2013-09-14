@@ -1,0 +1,39 @@
+{
+    "name": "aciWorker",
+    "title": "aciWorker - Abstract web workers and not only",
+    "description": "aciWorker brings abstraction to web workers and allow JavaScript code execution even in their absence. It also adds the use of a FIFO queue so that it provides code execution in the calling order and allows CPU resources reservation when web workers are not present, thus ensuring greater responsiveness to the user interface.",
+    "keywords": [
+    "web",
+    "workers",
+    "abstract",
+    "setTimeout",
+    "thread"
+    ],
+    "version": "1.0.0",
+    "author": {
+        "name": "Dragos Ursu",
+        "email":"dragosu@acoderinsights.ro",
+        "url": "https://github.com/dragosu"
+    },
+    "maintainers": [{
+        "name": "Dragos Ursu",
+        "email":"dragosu@acoderinsights.ro",
+        "url": "https://github.com/dragosu"
+    }],
+    "licenses": [{
+        "type": "MIT",
+        "url": "http://acoderinsights.ro/source/aciWorker/mit-licence.txt"
+    },{
+        "type": "GPLv2",
+        "url": "http://acoderinsights.ro/source/aciWorker/gpl-v2-licence.txt"
+    }],
+    "homepage": "http://acoderinsights.ro",
+    "demo": "http://acoderinsights.ro/source/aciWorker/aciWorker.html",
+    "download": "http://acoderinsights.ro/source/zip/aciWorker.zip",
+    "docs": "http://acoderinsights.ro/en/aciWorker-web-workers-with-jQuery",
+    "bugs": "https://github.com/dragosu/jquery-aciWorker/issues",
+    "dependencies": {
+        "jquery": ">=1.6.0",
+        "aciPlugin": ">=1.4.0"
+    }
+}
